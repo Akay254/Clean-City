@@ -202,7 +202,7 @@
               <li class="nav-item dropdown">
                  <a class="nav-link dropdown-toggle"  id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 
-                  <i class="fas fa-bell" id ="bell1" style="font-size:24px" ></i> 
+                  <i class="fas fa-bell" id ="bell" style="font-size:24px" ></i> 
                   
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink" id="drpdwn"> 
@@ -389,6 +389,7 @@
         fetch("/report/count/?status=seen").then(res => res.json()).then(data => {seenText.textContent=data.count;})
         fetch("/report/count/?status=closed").then(res => res.json()).then(data => {closedText.textContent=data.count;})
         //navbar notif(priority)
+        
         function priority1Notif(message){
             let d1 = document.createElement('div')
                 d1.className = "card notif critical border-0";
@@ -406,7 +407,13 @@
                 // d.appendChild(d1)
                 d.insertBefore(d1, d.firstChild);
 
-          }
+                let bell = document.getElementById("bell");
+                bell.className = "fas fa-bell color";
+                bell.addEventListener("click",function (){
+                    let d = document.getElementById("bell");
+                    d.classList.remove("color");
+                });
+        }
           
         function priority2Notif(message){
             let d1 = document.createElement('div')
@@ -418,17 +425,24 @@
             let d = document.getElementById("drpdwn")
             // d.appendChild(d1)
             d.insertBefore(d1, d.firstChild);
-            
-            
-          }
 
-        fetch("/report/priorityCount/?status=unseen").then(res => res.json()).then(data => {
+            let bell = document.getElementById("bell");
+                bell.className = "fas fa-bell color";
+                bell.addEventListener("click",function (){
+                    let d = document.getElementById("bell");
+                    d.classList.remove("color");
+                });
+        }
+
+          fetch("/report/priorityCount/?status=unseen").then(res => res.json()).then(data => {
           console.log(data)
           data.forEach((element)=>{
-
-            if(element.count>4)
-            console.log(`More than 4 ${element._id.reportType} reports from Pincode: ${element._id.pincode} in last 24hrs`)
-
+            if(element.count>4){
+              priority1Notif(`More than 4 ${element._id.reportType} reports from Pincode: ${element._id.pincode} in last 24hrs`)
+            }
+            else if(element.count>2){
+              priority2Notif(`More than 2 ${element._id.reportType} reports from Pincode: ${element._id.pincode} in last 24hrs`)
+            }
           })
         })
       </script>
@@ -1460,12 +1474,7 @@
             var layers = document.getElementById('menu');
             layers.appendChild(link);
           }
-          function fun(){
-            let d = document.getElementById("bell2");
-            d.classList.remove("fas");
-            d.classList.remove("color");
-            d.classList.add("far fa-bell")
-          }
+          
           //Notification/Socket
           const socket = io();
           
@@ -1550,24 +1559,12 @@
                 nowuiDashboard.showNotification('top','centre', `More than 4 ${reportData.reportType} reports from Pincode: ${reportData.pincode} within 24hrs`);
                 priority1Notif(`More than 4 ${reportData.reportType} reports from Pincode: ${reportData.pincode} within 24hrs`);
                 console.log('priority1ReportEDMC Event trigerred');
-                
-                let bell = document.getElementById("bell1");
-                bell.className = "fas fa-bell color";
-                bell.id = "bell2";
-                bell.addEventListener("click",fun());
-                
-            
               });
               socket.on('priority2ReportEDMC', (reportData) => {
                 notifyMe(`More than 2 ${reportData.reportType} reports from Pincode: ${reportData.pincode} within 24hrs`);
                 nowuiDashboard.showNotification('top','center', `More than 2 ${reportData.reportType} reports from Pincode: ${reportData.pincode} within 24hrs`);
                 priority2Notif(`More than 2 ${reportData.reportType} reports from Pincode: ${reportData.pincode} within 24hrs`);
                 console.log('priority2ReportEDMC Event trigerred');
-                let bell = document.getElementById("bell1");
-                bell.className = "fas fa-bell color";
-                bell.id = "bell2";
-                bell.addEventListener("click",fun());
-            
               });
               break;
 
